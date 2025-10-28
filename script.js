@@ -287,15 +287,25 @@ class DiceGame {
         );
         circle.innerText = "טרם התחלה";
 
-        const { progressWrapper, progress, progressText } =
-            this.createProgressBar("pre-start");
+        const { progressWrapper, progress, progressText } = this.createProgressBar("pre-start");
+
+        const textContainer = this.createGeneralElement(
+            "div",
+            ["text-container"],
+            "text-container-pre-start"
+        );
+
         const chanceText = this.createGeneralElement(
             "div",
             ["chance-text"],
             "chance-text"
         );
         chanceText.innerText = "הסיכויים שלך לזכות";
-        progress.appendChild(chanceText);
+
+        textContainer.appendChild(chanceText);
+        textContainer.appendChild(progressText);
+        progress.appendChild(textContainer);
+
         longContainer.append(progressWrapper);
         container.append(circle);
         longContainer.append(container);
@@ -303,8 +313,7 @@ class DiceGame {
 
         longContainer.style.marginRight = "20px";
 
-        const initialProbability =
-            this.calculateProbability(0, this.NUM_OF_DICE) * 100;
+        const initialProbability = this.calculateProbability(0, this.NUM_OF_DICE) * 100;
         const maxHeight = window.innerHeight * 0.0035;
         progress.style.height = initialProbability * maxHeight + "px";
         progressText.textContent = Math.round(initialProbability) + "%";
@@ -335,13 +344,27 @@ class DiceGame {
         rollBtn.disabled = true;
         this.rollDice(random, dice);
         setTimeout(() => {
-            const { progressWrapper, progress, progressText } =
-                this.createProgressBar(diceId);
+            const { progressWrapper, progress, progressText } = this.createProgressBar(diceId);
             longDiceContainer.prepend(progressWrapper);
+
+            const textContainer = this.createGeneralElement(
+                "div",
+                ["text-container"],
+                `text-container-${diceId}`
+            );
+            const chanceText = this.createGeneralElement(
+                "div",
+                ["chance-text"],
+                `chance-text-${diceId}`
+            );
+            chanceText.innerText = "הסיכויים שלך לזכות";
+
+            textContainer.appendChild(chanceText);
+            textContainer.appendChild(progressText);
+            progress.appendChild(textContainer);
+
             const remainingDice = this.NUM_OF_DICE - parseInt(diceId) - 1;
-            const probability =
-                this.calculateProbability(this.CURRENT_SUM, remainingDice) *
-                100;
+            const probability = this.calculateProbability(this.CURRENT_SUM, remainingDice) * 100;
             const maxHeight = window.innerHeight * 0.0035;
             void progress.offsetHeight;
             progress.style.height = probability * maxHeight + "px";
@@ -358,17 +381,6 @@ class DiceGame {
                 const progressValue = Math.min(elapsed / duration, 1);
                 const current = Math.floor(progressValue * probability);
                 progressText.textContent = current + "%";
-                const currentDiceContainer = document.querySelector(
-                    `#long-container${parseInt(diceId)}`
-                );
-                if (currentDiceContainer) {
-                    const chanceText = document.querySelector(".chance-text");
-                    if (chanceText) {
-                        currentDiceContainer
-                            .querySelector(".progress")
-                            .prepend(chanceText);
-                    }
-                }
 
                 let factor = Math.pow(current / 100, 2.0);
                 const min = 0.0;
@@ -631,7 +643,7 @@ class DiceGame {
         const continueButton = this.createButton(
             "close",
             ["modal-btn"],
-            "Continue"
+            "המשך"
         );
         continueButton.addEventListener("click", () => {
             modal.classList.remove("open");
