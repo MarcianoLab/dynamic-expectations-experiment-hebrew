@@ -54,7 +54,7 @@ class DiceGame {
             return this.createDiceElement(num);
         });
         this.startTime = performance.now();
-        const rollBtn = this.createButton("roll", ["roll"], "Roll Dice");
+        const rollBtn = this.createButton("roll", ["roll"], "הטל את הקוביה");
         rollBtn.addEventListener("click", () => {
             this.endTime = performance.now();
             const rt = this.endTime - this.startTime;
@@ -285,7 +285,7 @@ class DiceGame {
             ["dice", "circle"],
             "pre-start-circle"
         );
-        circle.innerText = "Pre-start";
+        circle.innerText = "טרם התחלה";
 
         const { progressWrapper, progress, progressText } =
             this.createProgressBar("pre-start");
@@ -294,7 +294,7 @@ class DiceGame {
             ["chance-text"],
             "chance-text"
         );
-        chanceText.innerText = "Current winning chance";
+        chanceText.innerText = "הסיכויים שלך לזכות";
         progress.appendChild(chanceText);
         longContainer.append(progressWrapper);
         container.append(circle);
@@ -410,7 +410,7 @@ class DiceGame {
 
     finishGame(rollBtn, gameId, dice, progress, progressText) {
         const isWin = this.CURRENT_SUM >= 21;
-        const resultText = isWin ? "You Won!" : "You Lost!";
+        const resultText = isWin ? "!ניצחת" : "!הפסדת";
         const resultTextColor = isWin ? "#2fc9ff" : "#ff2f2f";
 
         const modal = this.createModal(resultText, resultTextColor, gameId);
@@ -455,7 +455,7 @@ class DiceGame {
             "slider-parent"
         );
         const title = this.createGeneralElement("h2", [], "slider-title");
-        title.textContent = "How satisfied are you at this moment?";
+        title.textContent = "עד כמה את/ה מרוצה כרגע?";
 
         const sliderContainer = this.createGeneralElement(
             "div",
@@ -472,9 +472,9 @@ class DiceGame {
         const sliderElements = [
             track,
             this.createCircle("black", "0%"),
-            this.createLabel("very dissatisfied", "0%"),
+            this.createLabel("מאוד לא מרוצה", "0%"),
             this.createCircle("black", "100%"),
-            this.createLabel("very satisfied", "100%"),
+            this.createLabel("מאוד מרוצה", "100%"),
             thumb,
         ];
 
@@ -487,7 +487,7 @@ class DiceGame {
             ["roll"],
             "continueBtn"
         );
-        button.textContent = "Continue";
+        button.textContent = "המשך";
         button.disabled = true;
 
         const reminder = this.createGeneralElement(
@@ -496,7 +496,7 @@ class DiceGame {
             "reminderText"
         );
         reminder.textContent =
-            "Please move the slider according to the instructions";
+            "נא להזיז את הסליידר בהתאם להוראות";
 
         const elements = [title, sliderContainer, button, reminder];
         elements.forEach((element) => {
@@ -513,7 +513,7 @@ class DiceGame {
 
         let currentSliderValue = 50;
 
-        thumb.addEventListener("mousedown", (e) => {
+        sliderContainer.addEventListener("mousedown", (e) => {
             e.preventDefault();
             thumb.style.transition = "none";
             if (!hasMoved) {
@@ -526,13 +526,18 @@ class DiceGame {
             const rect = sliderContainer.getBoundingClientRect();
             const thumbWidth = thumb.offsetWidth;
 
-            const onMouseMove = (moveEvent) => {
-                moveEvent.preventDefault();
-                let x = moveEvent.clientX - rect.left;
+            const setThumbPosition = (clientX) => {
+                let x = clientX - rect.left;
                 x = Math.max(0, Math.min(rect.width, x));
                 const percent = (x / rect.width) * 100;
                 thumb.style.left = `calc(${percent}% - ${thumbWidth / 2}px)`;
                 currentSliderValue = Math.round(percent);
+            };
+
+            setThumbPosition(e.clientX);
+
+            const onMouseMove = (moveEvent) => {
+                setThumbPosition(moveEvent.clientX);
             };
 
             const onMouseUp = () => {
