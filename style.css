@@ -289,11 +289,6 @@ h2 {
     margin-bottom: 20px;
 }
 
-#continueBtn {
-    width: 100%;
-    box-sizing: border-box;
-}
-
 .slider-track {
     position: absolute;
     top: 50%;
