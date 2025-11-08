@@ -15,6 +15,33 @@ class DiceGame {
 
         const body = document.querySelector("body");
         body.append(this.app);
+        
+        this.hideQualtricsElements();
+    }
+
+    hideQualtricsElements() {
+        // Hide Qualtrics header, logo, and question text
+        const elementsToHide = [
+            "#Header",
+            "#Logo",
+            ".QuestionText",
+            "#Buttons",
+            ".QuestionOuter .QuestionText"
+        ];
+        
+        elementsToHide.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.style.display = "none";
+            }
+        });
+
+        // Make SkinInner full screen
+        const skinInner = document.getElementsByClassName("SkinInner")[0];
+        if (skinInner) {
+            skinInner.style.padding = "0";
+            skinInner.style.margin = "0";
+        }
     }
 
     initGameArray(isPractice) {
@@ -115,8 +142,27 @@ class DiceGame {
                 qualtricsElements.style.backgroundColor = "#fff";
             }
             document.body.style.backgroundColor = "#fff";
+            this.showQualtricsElements();
             window.postMessage("next", "*");
         }
+    }
+
+    showQualtricsElements() {
+        // Show Qualtrics elements again when game ends
+        const elementsToShow = [
+            "#Header",
+            "#Logo",
+            ".QuestionText",
+            "#Buttons",
+            ".QuestionOuter .QuestionText"
+        ];
+        
+        elementsToShow.forEach(selector => {
+            const element = document.querySelector(selector);
+            if (element) {
+                element.style.display = "";
+            }
+        });
     }
 
     createGeneralElement(element, classes, id) {
