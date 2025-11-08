@@ -11,6 +11,7 @@ class DiceGame {
         this.startTime = 0;
         this.endTime = 0;
         this.app = this.createGeneralElement("div", ["app"], "app");
+        this.app.setAttribute("dir", "ltr");
 
         const body = document.querySelector("body");
         body.append(this.app);
