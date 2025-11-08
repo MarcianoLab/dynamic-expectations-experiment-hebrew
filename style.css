@@ -13,6 +13,10 @@ h2 {
     text-align: center;
 }
 
+.slider-parent h2 {
+    width: 100%;
+}
+
 .body-style {
     height: 100vh;
     display: flex;
@@ -281,9 +285,13 @@ h2 {
 .slider-container {
     position: relative;
     width: 100%;
-    max-width: 500px;
     height: 70px;
     margin-bottom: 20px;
+}
+
+#continueBtn {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .slider-track {
@@ -367,6 +375,10 @@ h2 {
     align-items: center;
     justify-content: center;
     width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
 .circle,
