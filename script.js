@@ -82,7 +82,7 @@ class DiceGame {
             return this.createDiceElement(num);
         });
         this.startTime = performance.now();
-        const rollBtn = this.createButton("roll", ["roll"], "הטל את הקוביה");
+        const rollBtn = this.createButton("roll", ["roll"], "להטיל קוביה");
         rollBtn.addEventListener("click", () => {
             this.endTime = performance.now();
             const rt = this.endTime - this.startTime;
@@ -332,7 +332,7 @@ class DiceGame {
             ["dice", "circle"],
             "pre-start-circle"
         );
-        circle.innerText = "טרם התחלה";
+        circle.innerText = "טרום משחק";
 
         const { progressWrapper, progress, progressText } = this.createProgressBar("pre-start");
 
@@ -347,7 +347,7 @@ class DiceGame {
             ["chance-text"],
             "chance-text"
         );
-        chanceText.innerText = "הסיכויים שלך לזכות";
+        chanceText.innerText = "סיכויי זכייה נוכחיים";
 
         textContainer.appendChild(chanceText);
         textContainer.appendChild(progressText);
@@ -514,7 +514,7 @@ class DiceGame {
             "slider-parent"
         );
         const title = this.createGeneralElement("h2", [], "slider-title");
-        title.textContent = "עד כמה את/ה מרוצה כרגע?";
+        title.textContent = "?עד כמה את/ה מרוצה כרגע";
 
         const sliderContainer = this.createGeneralElement(
             "div",
@@ -533,7 +533,7 @@ class DiceGame {
             this.createCircle("black", "0%"),
             this.createLabel("מאוד לא מרוצה", "0%"),
             this.createCircle("black", "100%"),
-            this.createLabel("מאוד מרוצה", "100%"),
+            this.createLabel("מרוצה מאוד", "100%"),
             thumb,
         ];
 
@@ -546,7 +546,7 @@ class DiceGame {
             ["roll"],
             "continueBtn"
         );
-        button.textContent = "המשך";
+        button.textContent = "המשך/י";
         button.disabled = true;
 
         const reminder = this.createGeneralElement(
@@ -555,7 +555,7 @@ class DiceGame {
             "reminderText"
         );
         reminder.textContent =
-            "נא להזיז את הסליידר בהתאם להוראות";
+            "גרור/י את המחוון למיקום המתאים";
 
         const elements = [title, sliderContainer, button, reminder];
         elements.forEach((element) => {
@@ -690,7 +690,7 @@ class DiceGame {
         const continueButton = this.createButton(
             "close",
             ["modal-btn"],
-            "המשך"
+            "המשך/י"
         );
         continueButton.addEventListener("click", () => {
             modal.classList.remove("open");
