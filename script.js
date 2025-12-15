@@ -188,7 +188,7 @@ class DiceGame {
         return button;
     }
 
-    createProgressBar(id) {
+    createProgressBar(id, showChanceText = false) {
         const classes = ["progress-wrapper", "progress", "progress-text"];
         const elements = classes.map((className) => {
             return this.createGeneralElement(
@@ -201,6 +201,26 @@ class DiceGame {
         progressText.innerText = "0%";
         progressWrapper.appendChild(progress);
         progress.appendChild(progressText);
+
+        if (showChanceText) {
+            const textContainer = this.createGeneralElement(
+                "div",
+                ["text-container"],
+                `text-container-${id}`
+            );
+            const chanceText = this.createGeneralElement(
+                "div",
+                ["chance-text"],
+                `chance-text-${id}`
+            );
+            chanceText.innerText = "הסיכויים שלך לזכות";
+
+            textContainer.appendChild(chanceText);
+            textContainer.appendChild(progressText);
+            progress.innerHTML = '';
+            progress.appendChild(textContainer);
+        }
+
         return { progressWrapper, progress, progressText };
     }
 
@@ -274,34 +294,6 @@ class DiceGame {
         }
     }
 
-    interpolateColor(color1, color2, factor) {
-        const hexToRgb = (hex) => {
-            const bigint = parseInt(hex.slice(1), 16);
-            return [(bigint >> 16) & 255, (bigint >> 8) & 255, bigint & 255];
-        };
-
-        const rgbToHex = (rgb) => {
-            return (
-                "#" +
-                rgb
-                    .map((val) => {
-                        const hex = val.toString(16);
-                        return hex.length === 1 ? "0" + hex : hex;
-                    })
-                    .join("")
-            );
-        };
-
-        const rgb1 = hexToRgb(color1);
-        const rgb2 = hexToRgb(color2);
-
-        const result = rgb1.map((c1, i) =>
-            Math.round(c1 + factor * (rgb2[i] - c1))
-        );
-
-        return rgbToHex(result);
-    }
-
     calculateProbability(currentSum, remainingDice, targetSum = 21) {
         if (currentSum >= targetSum) return 1;
         if (remainingDice === 0) return currentSum >= targetSum ? 1 : 0;
@@ -334,24 +326,7 @@ class DiceGame {
         );
         circle.innerText = "טרום משחק";
 
-        const { progressWrapper, progress, progressText } = this.createProgressBar("pre-start");
-
-        const textContainer = this.createGeneralElement(
-            "div",
-            ["text-container"],
-            "text-container-pre-start"
-        );
-
-        const chanceText = this.createGeneralElement(
-            "div",
-            ["chance-text"],
-            "chance-text"
-        );
-        chanceText.innerText = "סיכויי זכייה נוכחיים";
-
-        textContainer.appendChild(chanceText);
-        textContainer.appendChild(progressText);
-        progress.appendChild(textContainer);
+        const { progressWrapper, progress, progressText } = this.createProgressBar("pre-start", true);
 
         longContainer.append(progressWrapper);
         container.append(circle);
@@ -391,102 +366,81 @@ class DiceGame {
         rollBtn.disabled = true;
         this.rollDice(random, dice);
         setTimeout(() => {
-            const { progressWrapper, progress, progressText } = this.createProgressBar(diceId);
-            longDiceContainer.prepend(progressWrapper);
-
-            const textContainer = this.createGeneralElement(
-                "div",
-                ["text-container"],
-                `text-container-${diceId}`
-            );
-            const chanceText = this.createGeneralElement(
-                "div",
-                ["chance-text"],
-                `chance-text-${diceId}`
-            );
-            chanceText.innerText = "הסיכויים שלך לזכות";
-
-            textContainer.appendChild(chanceText);
-            textContainer.appendChild(progressText);
-            progress.appendChild(textContainer);
+            this.changeCurrentScore(diceId);
+            this.GAME_DATA[gameId][`dice${parseInt(diceId) + 1}-rt`] = rt;
+            this.setContainerDisable(diceId);
 
             const remainingDice = this.NUM_OF_DICE - parseInt(diceId) - 1;
-            const probability = this.calculateProbability(this.CURRENT_SUM, remainingDice) * 100;
-            const maxHeight = window.innerHeight * 0.0035;
-            void progress.offsetHeight;
-            progress.style.height = probability * maxHeight + "px";
 
-            const currentGame = this.GAME_DATA[gameId];
+            if (remainingDice <= 0) {
+                const isWin = this.CURRENT_SUM >= 21;
+                this.GAME_DATA[gameId].probabilities.push(isWin ? 100 : 0);
+                this.finishGame(rollBtn, gameId, dice);
+            } else {
+                const { progressWrapper, progress, progressText } = this.createProgressBar(diceId, true);
+                longDiceContainer.prepend(progressWrapper);
 
-            currentGame.probabilities.push(Math.round(probability));
+                const probability = this.calculateProbability(this.CURRENT_SUM, remainingDice) * 100;
+                const maxHeight = window.innerHeight * 0.0035;
+                void progress.offsetHeight;
+                progress.style.height = probability * maxHeight + "px";
+                progressText.textContent = Math.floor(probability) + "%";
 
-            const duration = 1500;
-            const start = performance.now();
+                const currentGame = this.GAME_DATA[gameId];
+                currentGame.probabilities.push(Math.round(probability));
+                rollBtn.disabled = false;
 
-            const animateText = (timestamp) => {
-                const elapsed = timestamp - start;
-                const progressValue = Math.min(elapsed / duration, 1);
-                const current = Math.floor(progressValue * probability);
-                progressText.textContent = current + "%";
-
-                let factor = Math.pow(current / 100, 2.0);
-                const min = 0.0;
-                const max = 0.9;
-                factor = min + factor * (max - min);
-
-                const color = this.interpolateColor(
-                    "#2fc9ff",
-                    "#012060",
-                    factor
-                );
-                progress.style.backgroundColor = color;
-
-                if (progressValue < 1) {
-                    requestAnimationFrame(animateText);
-                } else {
-                    this.changeCurrentScore(diceId);
-
-                    rollBtn.disabled = false;
-                    this.GAME_DATA[gameId][`dice${parseInt(diceId) + 1}-rt`] = rt;
-                    this.startTime = performance.now();
-                    this.setContainerDisable(diceId);
-
-                    if (remainingDice <= 0) {
-                        this.finishGame(
-                            rollBtn,
-                            gameId,
-                            dice,
-                            progress,
-                            progressText
-                        );
+                // Hide all other progress texts
+                document.querySelectorAll('.progress-text').forEach(el => {
+                    if (el !== progressText) {
+                        el.style.display = 'none';
                     }
-                }
-            };
+                });
 
-            requestAnimationFrame(animateText);
+                // Hide all other chance texts
+                const currentChanceText = progress.querySelector('.chance-text');
+                document.querySelectorAll('.chance-text').forEach(el => {
+                    if (el !== currentChanceText) {
+                        el.style.display = 'none';
+                    }
+                });
+            }
+
         }, 1000);
     }
 
-    finishGame(rollBtn, gameId, dice, progress, progressText) {
+    finishGame(rollBtn, gameId, dice) {
         const isWin = this.CURRENT_SUM >= 21;
-        const resultText = isWin ? "!ניצחת" : "!הפסדת";
+        const resultText = isWin ? "ניצחת!" : "הפסדת!";
         const resultTextColor = isWin ? "#2fc9ff" : "#ff2f2f";
 
-        const modal = this.createModal(resultText, resultTextColor, gameId);
-        this.app.appendChild(modal);
-        modal.classList.add("open");
+        const diceId = dice.id.slice(-1);
+        const longDiceContainer = document.querySelector(
+            "#long-container" + diceId
+        );
 
-        const maxHeight = window.innerHeight * 0.0035;
-        progress.style.height = isWin ? 100 * maxHeight + "px" : "0px";
-        progressText.textContent = isWin ? "100%" : "0%";
+        const resultElement = this.createGeneralElement(
+            "h2",
+            ["modal-text"],
+            "result-text"
+        );
+        resultElement.innerText = resultText;
+        resultElement.style.color = resultTextColor;
+
+        longDiceContainer.prepend(resultElement);
+
+        // Hide all progress texts and chance texts
+        document.querySelectorAll('.progress-text').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.chance-text').forEach(el => el.style.display = 'none');
 
         this.GAME_DATA[gameId].sum = this.CURRENT_SUM;
         this.GAME_DATA[gameId].result = isWin ? "win" : "loss";
 
         this.IS_STARTED = false;
-        rollBtn.removeEventListener("click", () =>
-            this.randomDice(dice, rollBtn)
-        );
+
+        setTimeout(() => {
+            this.showSliderScreen(gameId);
+        }, 1500);
     }
 
     createCircle(color, left, isMovable = false) {
