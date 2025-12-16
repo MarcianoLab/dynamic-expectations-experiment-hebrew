@@ -411,8 +411,14 @@ class DiceGame {
 
     finishGame(rollBtn, gameId, dice) {
         const isWin = this.CURRENT_SUM >= 21;
-        const resultText = isWin ? "ניצחת!" : "הפסדת!";
-        const resultTextColor = isWin ? "#2fc9ff" : "#ff2f2f";
+        if (isWin) {
+            const resultText = "ניצחת!"
+            const resultTextColor = "#2fc9ff"
+        }
+        else {
+            const resultText = "הפסדת!"
+            const resultTextColor = "#ff2f2f"
+        }
 
         const diceId = dice.id.slice(-1);
         const longDiceContainer = document.querySelector(
