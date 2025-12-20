@@ -266,11 +266,11 @@ class DiceGame {
 
         setTimeout(() => {
             this.setFinalPosition(random, dice);
-        }, 500);
+        }, 200);
     }
 
     setFinalPosition(random, dice) {
-        dice.style.transition = "transform 0.5s ease-out";
+        dice.style.transition = "transform 0.2s ease-out";
 
         switch (random) {
             case 1:
@@ -406,7 +406,7 @@ class DiceGame {
                 });
             }
 
-        }, 1000);
+        }, 425);
     }
 
     finishGame(rollBtn, gameId, dice) {
